@@ -1,0 +1,43 @@
+# LEMP auto install on Centos7
+---
+- hosts: centos
+  become: true
+
+  tasks:
+# Install and start services:   
+    - name: Create Repo for PHP 7.4
+      copy:
+        dest: /etc/yum.repos.d/remi-php74.repo
+        content: |
+          [remi-php74]
+          name=Remi's PHP 7.4 RPM repository for Enterprise Linux 7 - $basearch
+          mirrorlist=http://cdn.remirepo.net/enterprise/7/php74/mirror
+          enabled=1
+          gpgcheck=1
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi
+
+    - name: Install LEMP Packages
+      yum: 
+        name: "{{ packages }}"
+        state: latest
+      vars: 
+        packages:
+          - epel-release
+          - yum-utils
+          - mariadb-server
+          - mariadb
+          - nginx
+          - php 
+          - php-mysql
+          - php-fpm
+
+    - name: Start services for LEMP 
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      with_items:
+          - nginx
+          - mariadb
+
+# Nginx Configuration
