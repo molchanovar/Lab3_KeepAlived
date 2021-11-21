@@ -2,8 +2,11 @@
 keepalived + nginx + php-fpm + mysql
 
 
-### Branch 1: 
+### 1. Branch LEMP: 
 Vagrant + Ansible Install LEMP Web Server on CentOS 7
 
-### Step 2:
+### 2. Branch Wordpress:
 Vagrant + Ansible Install Wordpress on CentOS 7 
+
+### 3. Branch keepAlived:
+Vagrant + Ansible Install HA-cluster Wordpress on VRRP/Keepalved (CentOS 7) 
