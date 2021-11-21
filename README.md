@@ -2,8 +2,8 @@
 keepalived + nginx + php-fpm + mysql
 
 
-### Step 1: 
-Unstall LEMP by Ansible
+### Branch 1: 
+Vagrant + Ansible Install LEMP Web Server on CentOS 7
 
 ### Step 2:
-Install Wordpress by Ansible 
+Vagrant + Ansible Install Wordpress on CentOS 7 
