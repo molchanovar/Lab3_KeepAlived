@@ -25,6 +25,7 @@ Vagrant.configure(2) do |config|
       ansible.vm.network :private_network, ip: "10.0.10.3", virtualbox__intnet: "net1"
       ansible.vm.network :forwarded_port, guest: 22, host: 2403, id: "ssh"
       ansible.vm.hostname = "ansible"
+      ansible.vm.provision "file", source: "./lemp.yml", destination: "$HOME/lemp.yml"
       ansible.vm.provision "shell", run: "always", inline: <<-SHELL
         sudo sed -i "s/.*PasswordAuthentication\ no/PasswordAuthentication\ yes/g" /etc/ssh/sshd_config
         sudo systemctl restart sshd
@@ -37,9 +38,13 @@ lemp ansible_host=10.0.10.70
 ansible_user=vagrant
 ansible_password=vagrant
 EOF
+#ansible_ssh_private_key_file=/home/vagrant/.ssh/id_rsa
         ansible -m ping lemp
         SHELL
-    end
+      ansible.vm.provision "ansible_local" do |configure|
+        configure.playbook = "lemp.yml"
+      end
+   end
 end
 
 #    config.vm.define "haproxy2" do |ha2|
