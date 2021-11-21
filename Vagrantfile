@@ -37,7 +37,6 @@ lemp ansible_host=10.0.10.70
 ansible_user=vagrant
 ansible_password=vagrant
 EOF
-#ansible_ssh_private_key_file=/home/vagrant/.ssh/id_rsa
         ansible -m ping lemp
         SHELL
     end
