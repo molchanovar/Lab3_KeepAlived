@@ -70,6 +70,17 @@
       notify:
       - Restart Nginx
 
+# PHP config adjust: 
+    - name: change daemon from apache to nginx
+      lineinfile: 
+        path: /etc/php-fpm.d/www.conf
+        regex: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      with_items:
+        - { regexp: '^user.\=.apache$', line:  'user = nginx' }  
+        - { regexp: '^group.\=.apache$', line: 'group = nginx' }
+
   handlers:
     - name: Restart Nginx
       systemd:
