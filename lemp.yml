@@ -4,6 +4,16 @@
   become: true
 
   tasks:
+# Turn on Firewalld and get access http/https ports: 
+    - firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_items:
+        - http
+        - https
+
 # Install and start services:   
     - name: Create Repo for PHP 7.4
       copy:
@@ -39,5 +49,29 @@
       with_items:
           - nginx
           - mariadb
+          - php-fpm
 
-# Nginx Configuration
+# Nginx Configuration for output php info: 
+    - name: Remove file start Nginx page
+      file:
+        path: /usr/share/nginx/html/index.html
+        state: absent
+    
+    - name: Create php info start page
+      copy:
+        dest: /etc/yum.repos.d/remi-php74.repo
+        content: "<?php phpinfo();?>"
+
+    - name: Copy file with owner and permissions
+      copy:
+        src: ./php.conf
+        dest: /etc/nginx/conf.d/php.conf
+        mode: '0644'
+      notify:
+      - Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
