@@ -3,7 +3,7 @@ upstream php {
         server 127.0.0.1:9000;
 }
 server {
-   server_name 192.168.1.124;
+   server_name {{ ansible_default_ipv4.address }};
    root /usr/share/nginx/html;
    index info.php;
 
