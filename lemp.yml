@@ -1,19 +1,9 @@
 # LEMP auto install on Centos7
 ---
-- hosts: centos
+- hosts: wp
   become: true
-
+   
   tasks:
-# Turn on Firewalld and get access http/https ports: 
-    - firewalld:
-        service: "{{ item }}"
-        permanent: yes
-        state: enabled
-        immediate: yes
-      with_items:
-        - http
-        - https
-
 # Install and start services:   
     - name: Create Repo for PHP 7.4
       copy:
@@ -25,31 +15,25 @@
           enabled=1
           gpgcheck=1
           gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi
-
+ 
     - name: Install LEMP Packages
-      yum: 
-        name: "{{ packages }}"
-        state: latest
-      vars: 
-        packages:
-          - epel-release
-          - yum-utils
-          - mariadb-server
-          - mariadb
-          - nginx
-          - php 
-          - php-mysql
-          - php-fpm
+      yum: name={{ item }} update_cache=yes state=latest
+      loop: [ 'epel-release', 'yum-utils', 'mariadb-server', 'mariadb', 'nginx', 'php', 'php-mysql', 'php-fpm' ]
 
     - name: Start services for LEMP 
-      systemd:
-        name: "{{ item }}"
-        state: started
-        enabled: yes
+      systemd: name={{ item }} state=started enabled=yes
+      loop: [ 'nginx', 'mariadb', 'php-fpm', 'firewalld' ]
+     
+# Turn on Firewalld and get access http/https ports: 
+    - firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
       with_items:
-          - nginx
-          - mariadb
-          - php-fpm
+        - http
+        - https
+
 
 # Nginx Configuration for output php info: 
     - name: Remove file start Nginx page
@@ -59,12 +43,12 @@
     
     - name: Create php info start page
       copy:
-        dest: /etc/yum.repos.d/remi-php74.repo
+        dest: /usr/share/nginx/html/info.php
         content: "<?php phpinfo();?>"
 
-    - name: Copy file with owner and permissions
-      copy:
-        src: ./php.conf
+    - name: Copy file with var ipv4 server address (var from Ansible Facts)    
+      template:
+        src: ./php.j2
         dest: /etc/nginx/conf.d/php.conf
         mode: '0644'
       notify:
