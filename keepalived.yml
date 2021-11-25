@@ -1,0 +1,115 @@
+# LEMP auto install on Centos7
+---
+- hosts: wpress
+  become: true
+   
+  tasks:
+# Prepare servers for lab working (sysctl + SElinux off): 
+    - name: Update hostnames of labs VMs
+      hostname:
+        name: "{{ new_hostname }}"
+
+    - sysctl:
+        name: net.ipv4.ip_nonlocal_bind
+        value: '1'
+        sysctl_set: yes
+
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+
+# Install and start services:   
+    - name: Create Repo for PHP 7.4
+      copy:
+        dest: /etc/yum.repos.d/remi-php74.repo
+        content: |
+          [remi-php74]
+          name=Remi's PHP 7.4 RPM repository for Enterprise Linux 7 - $basearch
+          mirrorlist=http://cdn.remirepo.net/enterprise/7/php74/mirror
+          enabled=1
+          gpgcheck=1
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi
+ 
+    - name: Install LEMP Packages
+      yum: name={{ item }} update_cache=yes state=latest
+      loop: [ 'epel-release', 'yum-utils', 'nginx', 'php', 'php-mysql', 'php-fpm', 'keepalived' ]
+
+    - name: Start services for LEMP 
+      systemd: name={{ item }} state=started enabled=yes
+      loop: [ 'nginx', 'php-fpm', 'firewalld' ]
+     
+    - name: Turn on Firewalld and get access http/https ports
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        state: enabled
+        immediate: yes
+      with_items:
+        - http
+        - https
+
+# Nginx Configuration for output php info: 
+    - name: Remove file start Nginx page
+      file:
+        path: /usr/share/nginx/html/index.html
+        state: absent
+    
+    - name: Create php info start page
+      copy:
+        dest: /usr/share/nginx/html/info.php
+        content: "<?php phpinfo();?>"
+
+    - name: Copy file with var ipv4 server address (var from Ansible Facts)    
+      template:
+        src: ./php.j2
+        dest: /etc/nginx/conf.d/php.conf
+        mode: '0644'
+      notify:
+      - Reload Nginx
+
+# PHP config adjust: 
+    - name: change daemon from apache to nginx
+      lineinfile: 
+        path: /etc/php-fpm.d/www.conf
+        regex: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      with_items:
+        - { regexp: '^user.\=.apache$', line:  'user = nginx' }  
+        - { regexp: '^group.\=.apache$', line: 'group = nginx' }
+
+# Keepalived for HA
+    - name: Allow VRRP traffic to pass between the keepalived nodes
+      firewalld:
+        rich_rule: rule protocol value="vrrp" accept
+        zone: public
+        permanent: yes
+        immediate: yes
+        state: enabled 
+        
+    - name: Backup keepalived config files and copy script for check nginx status
+      copy: src="/etc/keepalived/keepalived.conf" remote_src=yes dest="/etc/keepalived/keepalived.conf.backup" mode=0644
+
+      copy: src="./check_nginx.sh" dest="/bin/check_nginx.sh" mode=0744
+  
+      
+    - name: Copy keepalived.conf file with Master/Backup param (var from Ansible Facts)    
+      template:
+        src: ./keepalived.j2
+        dest: /etc/keepalived/keepalived.conf
+        mode: '0644'
+      notify:
+      - Start/enabled keepalived  
+
+      
+  handlers:
+    - name: Reload Nginx
+      systemd:
+        name: nginx
+        state: reloaded
+        
+    - name: Start/enabled keepalived
+      systemd:
+        name: keepalived
+        state: restarted
+        enabled: yes
