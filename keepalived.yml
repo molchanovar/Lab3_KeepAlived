@@ -90,7 +90,7 @@
     - name: Backup keepalived config files and copy script for check nginx status
       copy: src="/etc/keepalived/keepalived.conf" remote_src=yes dest="/etc/keepalived/keepalived.conf.backup" mode=0644
 
-      copy: src="./check_nginx.sh" dest="/bin/check_nginx.sh" mode=0744
+    - copy: src="./check_nginx.sh" dest="/bin/check_nginx.sh" mode=0744
   
       
     - name: Copy keepalived.conf file with Master/Backup param (var from Ansible Facts)    
