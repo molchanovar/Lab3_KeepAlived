@@ -20,25 +20,23 @@
     state: started
 
 # ==========================================
-# Comment this after mysql install (for future use)
-
-#- name: Get temp MySQL root password
-#  shell: |
-#    grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | tail -1 | awk -F ' ' '{print $(NF)}'
-#  register: temp_root_password        
+# Comment this part after mysql install (for future use)
+- name: Get temp MySQL root password
+  shell: |
+    grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | tail -1 | awk -F ' ' '{print $(NF)}'
+  register: temp_root_password        
     
-#- name: Print temp MySQL root password
-#  debug:
-#    msg: "Temp MySQL root password is: {{ temp_root_password.stdout }}"
+- name: Print temp MySQL root password
+  debug:
+    msg: "Temp MySQL root password is: {{ temp_root_password.stdout }}"
 
-#- name: Print new MySQL root password ( just for debugging )
-#  debug:
-#    msg: "New MySQL root password will be: {{ mysql_root_password }}"
+- name: Print new MySQL root password ( just for debugging )
+  debug:
+    msg: "New MySQL root password will be: {{ mysql_root_password }}"
 
-#- name: Change root password
-#  shell: |
-#    mysql --user root --password="{{ temp_root_password.stdout }}" --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"    
-
+- name: Change root password
+  shell: |
+    mysql --user root --password="{{ temp_root_password.stdout }}" --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"    
 # ===========================================
 
 - name: Create database for Wordpress  
