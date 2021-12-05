@@ -33,3 +33,7 @@ Vagrant + Ansible Install HA-cluster Wordpress on VRRP/Keepalved (CentOS 7)
 ### Проверка доступности Wordpress при падении Nginx/Server'а
 1) Остановить Nginx на сервере wp1 [192.168.1.14] - скрипт **check_nginx.sh** проверит что Nginx упал и KeepAlived перенесет общий адрес на другой сервер c Nginx
 2) Выключить сеть/сервер - также KeepAlived сам переключит на резерную ноду (простой около минуты)
+
+#### Firewalld
+При тестовой раскатке на wp2 не запустился сервис Firewalld - `Failed to start firewalld - dynamic firewall daemon` \ 
+Проблема ушла после `pkill -f firewalld` и повторного запуска
