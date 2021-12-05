@@ -22,13 +22,15 @@ sudo systemctl restart sshd
       ha2.vm.network "public_network", ip: "192.168.1.15"
 	  ha2.vm.provision "shell", run: "always", inline: <<-SHELL
 sudo sed -i "s/.*PasswordAuthentication\ no/PasswordAuthentication\ yes/g" /etc/ssh/sshd_config
-sudo systemctl restart sshd	  
+sudo systemctl restart sshd
+      SHELL
     end
 
     config.vm.define "haproxy3" do |db|
       db.vm.network "public_network", ip: "192.168.1.16"
 	  db.vm.provision "shell", run: "always", inline: <<-SHELL
 sudo sed -i "s/.*PasswordAuthentication\ no/PasswordAuthentication\ yes/g" /etc/ssh/sshd_config
-sudo systemctl restart sshd	  
+sudo systemctl restart sshd
+      SHELL
     end
 end
