@@ -6,7 +6,7 @@ vrrp_script chk_nginx {
  weight 50
 }
 vrrp_instance VI_1 {
- interface eth0
+ interface eth1
  state {{ keepalived_state }}
  virtual_router_id 1
  priority {{ keepalived_priority }} 
