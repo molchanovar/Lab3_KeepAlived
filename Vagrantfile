@@ -11,14 +11,14 @@ Vagrant.configure(2) do |config|
     end
   
     config.vm.define "haproxy1" do |ha1|
-	  ha1.vm.network "public_network", ip: "192.168.1.14"
+      ha1.vm.network "public_network", ip: "192.168.1.14"
     end
 	
     config.vm.define "haproxy2" do |ha2|
-	  ha2.vm.network "public_network", ip: "192.168.1.15"
+      ha2.vm.network "public_network", ip: "192.168.1.15"
     end
 
-	config.vm.define "haproxy3" do |db|
-	  db.vm.network "public_network", ip: "192.168.1.16"
+    config.vm.define "haproxy3" do |db|
+      db.vm.network "public_network", ip: "192.168.1.16"
     end
 end
