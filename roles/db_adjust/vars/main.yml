@@ -1,0 +1,10 @@
+#MySQL Settings
+mysql_root_password: "Super1_Secret"
+mysql_db: "wp"
+mysql_user: "wpuser"
+mysql_password: "Super1_wp"
+remote_host: '%'
+mysql_host: "192.168.1.16"
+
+#KeepAlived Address
+VRRP_address: "192.168.1.50"

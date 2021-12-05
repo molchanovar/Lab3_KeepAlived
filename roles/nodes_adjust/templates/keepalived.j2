@@ -1,0 +1,23 @@
+! Configuration File for keepalived
+
+vrrp_script chk_nginx {
+ script "/bin/check_nginx.sh" 
+ interval 2
+ weight 50
+}
+vrrp_instance VI_1 {
+ interface eth0
+ state {{ keepalived_state }}
+ virtual_router_id 1
+ priority {{ keepalived_priority }} 
+ virtual_ipaddress {
+ {{ VRRP_address }}
+ }
+ track_script {
+ chk_nginx
+ }
+ authentication {
+ auth_type PASS
+ auth_pass 123
+ }
+}

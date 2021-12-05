@@ -1,0 +1,44 @@
+---
+- name: Update hostnames of labs VMs
+  hostname:
+    name: "{{ new_hostname }}"
+
+- name: Set timezone to Europe/Moscow
+  timezone:
+    name: Europe/Moscow      
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Install additional pack manager
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - epel-release
+    - yum-utils
+    - nc
+    - vim
+
+- name: Turn on Firewalld and get access http/https/mysql ports
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - http
+    - https
+    - mysql      
+      
+- name: change daemon from apache to nginx
+  lineinfile: 
+    path: /etc/hosts
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { line: '192.168.1.14 wp1' }  
+    - { line: '192.168.1.15 wp2' }      
+    - { line: '192.168.1.16 db' }   

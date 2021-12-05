@@ -1,0 +1,106 @@
+---
+- sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: '1'
+    sysctl_set: yes
+    
+# Install and start services:   
+- name: Create Repo for PHP 7.4
+  copy:
+    dest: /etc/yum.repos.d/remi-php74.repo
+    content: |
+      [remi-php74]
+      name=Remi's PHP 7.4 RPM repository for Enterprise Linux 7 - $basearch
+      mirrorlist=http://cdn.remirepo.net/enterprise/7/php74/mirror
+      enabled=1
+      gpgcheck=1
+      gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-remi
+ 
+- name: Install LEMP Packages
+  yum: name={{ item }} update_cache=yes state=latest
+  loop: [ 'nginx', 'php', 'php-mysql', 'php-fpm', 'keepalived' ]
+
+- name: Start services for LEMP 
+  systemd: name={{ item }} state=started enabled=yes
+  loop: [ 'nginx', 'php-fpm', 'firewalld' ]
+     
+# Nginx Configuration for output php info: 
+#- name: Remove file start Nginx page
+#  file:
+#    path: /usr/share/nginx/html/index.html
+#    state: absent
+    
+#- name: Create php info start page
+#  copy:
+#    dest: /usr/share/nginx/html/info.php
+#    content: "<?php phpinfo();?>"
+
+#- name: Copy file with var ipv4 server address (var from Ansible Facts)    
+#  template:
+#    src: php.j2
+#    dest: /etc/nginx/conf.d/php.conf
+#    mode: '0644'
+#  notify:
+#    - Reload Nginx    
+
+# Keepalived for HA
+- name: Allow VRRP traffic to pass between the keepalived nodes
+  firewalld:
+    rich_rule: rule protocol value="vrrp" accept
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled 
+        
+- name: Backup keepalived config files and copy script for check nginx status
+  copy: src="/etc/keepalived/keepalived.conf" remote_src=yes dest="/etc/keepalived/keepalived.conf.backup" mode=0644
+
+- copy: src="./check_nginx.sh" dest="/bin/check_nginx.sh" mode=0744
+  
+      
+- name: Copy keepalived.conf file with Master/Backup param (var from Ansible Facts)    
+  template:
+    src: keepalived.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: '0644'
+  notify:
+  - Start/enabled keepalived  
+
+# Install Wordpress
+- name: Download and install Wordpress
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: /usr/share/nginx/html
+    remote_src: yes
+    
+- name: Copy configured wp-config.php  
+  copy:
+    src: wp-config.php
+    dest: /usr/share/nginx/html/wordpress/wp-config.php
+  
+- name: Set owner for Wordpress directory
+  file:
+    path: /usr/share/nginx/html/wordpress
+    owner: nginx
+    group: nginx
+    state: directory
+    recurse: yes
+    mode: 0755
+    
+- name: Backup default nginx.comf
+  copy:
+    src: /etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf.orig
+    remote_src: yes    
+    
+- name: Delete default nginx.conf
+  file:
+    path: /etc/nginx/nginx.conf
+    state: absent    
+
+- name: Copy configured nginx.conf
+  template:
+    src: nginx.j2
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - Reload Nginx   
