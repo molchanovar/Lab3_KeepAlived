@@ -18,9 +18,10 @@ Vagrant + Ansible Install HA-cluster Wordpress on VRRP/Keepalved (CentOS 7)
 Реализована отказоусточивость фронтенда через KeepAlived. \
 Стенд разворачивается полуатоматически внутри домашней сети: 
 1) Скачать архив по нужной ветке `git clone --branch HA_wordpress git@github.com:molchanovar/Lab3_KeepAlived.git` 
-2) Убрать проверку ключей в `/etc/ansible/ansible.cfg` (раскомментировать `host_key_checking = False`), установить `apt install sshpass`
-3) Запустить Vagrant `vagrant up`
-4) Запустить ansible роль **HA_wordpress_role.yml** с локальным inventory `ansible-playbook -i inventory HA_wordpress_role.yml -v `
+2) Убрать проверку ключей в `/etc/ansible/ansible.cfg` (раскомментировать `host_key_checking = False`)
+3) Установить `apt install sshpass` (нужен для ansible для входа по паролю)
+4) Запустить Vagrant `vagrant up`
+5) Запустить ansible роль **HA_wordpress_role.yml** с локальным inventory `ansible-playbook -i inventory HA_wordpress_role.yml -v `
 
 
 ### Развернутся 3 VM: 
