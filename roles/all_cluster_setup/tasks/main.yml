@@ -22,7 +22,10 @@
     - nc
     - vim
 
-- name: Turn on Firewalld and get access http/https/mysql ports
+- name: Turn on Firewalld
+  systemd: name=firewalld state=started enabled=yes   
+    
+- name: Get access http/https/mysql ports
   firewalld:
     service: "{{ item }}"
     permanent: yes
@@ -31,7 +34,7 @@
   with_items:
     - http
     - https
-    - mysql      
+    - mysql
       
 - name: change daemon from apache to nginx
   lineinfile: 
