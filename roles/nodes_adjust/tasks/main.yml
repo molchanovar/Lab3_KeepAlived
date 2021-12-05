@@ -22,7 +22,7 @@
 
 - name: Start services for LEMP 
   systemd: name={{ item }} state=started enabled=yes
-  loop: [ 'nginx', 'php-fpm', 'firewalld' ]
+  loop: [ 'nginx', 'php-fpm' ]
 
 # Keepalived for HA
 - name: Allow VRRP traffic to pass between the keepalived nodes
