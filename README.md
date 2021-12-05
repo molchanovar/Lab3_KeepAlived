@@ -35,5 +35,5 @@ Vagrant + Ansible Install HA-cluster Wordpress on VRRP/Keepalved (CentOS 7)
 2) Выключить сеть/сервер - также KeepAlived сам переключит на резерную ноду (простой около минуты)
 
 #### Firewalld
-При тестовой раскатке на wp2 не запустился сервис Firewalld - `Failed to start firewalld - dynamic firewall daemon` \ 
+При тестовой раскатке на wp2 не запустился сервис Firewalld - `Failed to start firewalld - dynamic firewall daemon` \
 Проблема ушла после `pkill -f firewalld` и повторного запуска
