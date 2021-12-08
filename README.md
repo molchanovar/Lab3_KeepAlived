@@ -27,7 +27,7 @@ Vagrant + Ansible Install HA-cluster Wordpress on VRRP/Keepalved (CentOS 7)
 ### Развернутся 3 VM: 
 1) Nodes: wp1 [192.168.1.14], wp2 [192.168.1.15] - на них реализован Keepalived и Wordpress
 2) Database: db [192.168.1.16] - база данных Mysql 8.0
-3) HA Wordpress доступен по адресу [192.168.1.16]
+3) HA Wordpress доступен по адресу [192.168.1.50]
 
 
 ### Проверка доступности Wordpress при падении Nginx/Server'а
